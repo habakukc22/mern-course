@@ -1,0 +1,7 @@
+For the project to run, I had to make the following changes in the package.json file:
+
+ "scripts": {
+    "start": "react-scripts --openssl-legacy-provider start",
+    "build": "react-scripts --openssl-legacy-provider build",
+    }
+
