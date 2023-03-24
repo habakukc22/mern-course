@@ -1,10 +1,24 @@
 import React from "react";
 import { createPortal } from "react-dom";
+import { CSSTransition } from "react-transition-group";
 
 import "./SideDrawer.css";
 
 const SideDrawer = (props) => {
-  const content = <aside className="side-drawer">{props.children}</aside>;
+  const content = (
+    <CSSTransition
+      in={props.show}
+      timeout={200}
+      classNames="slide-in-left"
+      mountOnEnter
+      unmountOnExit
+    >
+      <aside className="side-drawer" onClick={props.onClick}>
+        {props.children}
+      </aside>
+    </CSSTransition>
+  );
+  //Classnames is a special prop of the CSSTransition and "slide-in-left" is defined in the index.css file
 
   return createPortal(content, document.getElementById("drawer-hook"));
 };
