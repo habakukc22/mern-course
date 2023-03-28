@@ -7,6 +7,9 @@ const formReducer = (state, action) => {
 
       //At this moment, state.inputs can be only title or description
       for (const inputId in state.inputs) {
+        if (!state.inputs[inputId]) {
+          continue;
+        }
         if (inputId === action.inputId) {
           formIsValid = formIsValid && action.isValid;
         } else {

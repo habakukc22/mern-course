@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useContext, useState } from "react";
 
 import Card from "../../shared/components/UIElements/Card";
 import Modal from "../../shared/components/UIElements/Modal";
@@ -6,8 +6,11 @@ import Button from "../../shared/components/FormElements/Button";
 import Map from "../../shared/components/UIElements/Map";
 
 import "./PlaceItem.css";
+import { AuthContext } from "../../shared/context/auth-context";
 
 function PlaceItem(props) {
+  const { isLoggedIn } = useContext(AuthContext);
+
   const [showMap, setShowMap] = useState(false);
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -75,10 +78,14 @@ function PlaceItem(props) {
             <Button inverse onClick={openMapHandler}>
               VIEW ON A MAP
             </Button>
-            <Button to={`/places/${props.id}`}>EDIT</Button>
-            <Button danger onClick={showDeleteWarningHandler}>
-              DELETE
-            </Button>
+            {isLoggedIn && (
+              <Fragment>
+                <Button to={`/places/${props.id}`}>EDIT</Button>
+                <Button danger onClick={showDeleteWarningHandler}>
+                  DELETE
+                </Button>
+              </Fragment>
+            )}
           </div>
         </Card>
       </li>
