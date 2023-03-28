@@ -10,9 +10,20 @@ import "./PlaceItem.css";
 function PlaceItem(props) {
   const [showMap, setShowMap] = useState(false);
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
   const openMapHandler = () => setShowMap(true);
 
   const closeMapHandler = () => setShowMap(false);
+
+  const showDeleteWarningHandler = () => setShowConfirmModal(true);
+
+  const cancelDeleteHandler = () => setShowConfirmModal(false);
+
+  const confirmDeleteHandler = () => {
+    setShowConfirmModal(false);
+    console.log("Deleting");
+  };
 
   return (
     <Fragment>
@@ -27,6 +38,25 @@ function PlaceItem(props) {
         <div className="map-container">
           <Map center={props.coordinates} zoom={16} />
         </div>
+      </Modal>
+
+      <Modal
+        show={showConfirmModal}
+        onCancel={cancelDeleteHandler}
+        header="Are you sure?"
+        footerClass="place-item__modal-action"
+        footer={
+          <Fragment>
+            <Button inverse onClick={cancelDeleteHandler}>
+              Nope!
+            </Button>
+            <Button danger onClick={confirmDeleteHandler}>
+              Yeah!
+            </Button>
+          </Fragment>
+        }
+      >
+        <p>Are you sure you wanna delete?</p>
       </Modal>
 
       <li className="place-item">
@@ -46,7 +76,9 @@ function PlaceItem(props) {
               VIEW ON A MAP
             </Button>
             <Button to={`/places/${props.id}`}>EDIT</Button>
-            <Button danger>DELETE</Button>
+            <Button danger onClick={showDeleteWarningHandler}>
+              DELETE
+            </Button>
           </div>
         </Card>
       </li>
