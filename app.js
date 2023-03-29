@@ -1,31 +1,22 @@
-const http = require("http");
+const express = require("express");
+const bodyParser = require("body-parser");
 
-const server = http.createServer((req, res) => {
-  console.log("INCOMING REQUEST");
-  console.log(req.method, req.url);
+const app = express();
 
-  if (req.method === "POST") {
-    let body = "";
+app.use(bodyParser.urlencoded({ extended: false }));
 
-    req.on("end", () => {
-      const userName = body.split("=")[1];
-      //   console.log(body);
-      res.end("<h1>" + userName + "</h1>");
-    });
+app.post("/user", (req, res, next) => {
+  /*bodyParser role
+  req.body will exist thanks to bodyParser and what was passed into the input can be accessed with the key "username" (the atribute name of the input)
+  */
 
-    req.on("data", (chunk) => {
-      body += chunk;
-    });
-  } else {
-    //   res.setHeader("Content-Type", "text/plain"); // this tell that what is sent back is just text
-    res.setHeader("Content-Type", "text/html"); // this tell that what is sent back is html
-
-    res.end(
-      '<form method="POST"><input name="username" type="text name="username"/><button type="submit">SEND</button></form>'
-    );
-  }
+  res.send("<h1>" + req.body.username + "</h1>");
 });
 
-server.listen(5000);
+app.get("/", (req, res, next) => {
+  res.send(
+    '<form action="/user" method="POST"><input type="text" name="username" /><button type="submit">Send</button></form>'
+  );
+});
 
-//This code show how working with node alone can be cumbersome. That's why we wanna use express.
+app.listen(5000);
