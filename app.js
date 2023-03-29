@@ -1,13 +1,31 @@
-const fs = require("fs");
+const http = require("http");
 
-const userName = "Habakuk";
+const server = http.createServer((req, res) => {
+  console.log("INCOMING REQUEST");
+  console.log(req.method, req.url);
 
-//alert(userName); //Not accessible API
+  if (req.method === "POST") {
+    let body = "";
 
-fs.writeFile("user-data.txt", "Name: " + userName, (error) => {
-  if (error) {
-    console.log(error);
+    req.on("end", () => {
+      const userName = body.split("=")[1];
+      //   console.log(body);
+      res.end("<h1>" + userName + "</h1>");
+    });
+
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
   } else {
-    console.log("File is ready!");
+    //   res.setHeader("Content-Type", "text/plain"); // this tell that what is sent back is just text
+    res.setHeader("Content-Type", "text/html"); // this tell that what is sent back is html
+
+    res.end(
+      '<form method="POST"><input name="username" type="text name="username"/><button type="submit">SEND</button></form>'
+    );
   }
 });
+
+server.listen(5000);
+
+//This code show how working with node alone can be cumbersome. That's why we wanna use express.
