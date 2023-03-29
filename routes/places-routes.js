@@ -1,5 +1,7 @@
 const express = require("express");
 
+const HttpError = require("../models/http-error");
+
 const router = express.Router();
 
 const DUMMY_PLACES = [
@@ -22,6 +24,10 @@ router.get("/:pid", (req, res, next) => {
   const placeId = req.params.pid;
   const place = DUMMY_PLACES.find((place) => place.id === placeId);
 
+  if (!place) {
+    throw new HttpError("Could not find a place with the id provided", 404);
+  }
+
   res.json({ place });
 });
 
@@ -29,11 +35,13 @@ router.get("/user/:uid", (req, res, next) => {
   const userId = req.params.uid;
   console.log("GET resquest in places of user " + userId);
 
-  const places = DUMMY_PLACES.filter((place) => place.creator === userId);
+  const place = DUMMY_PLACES.find((place) => place.creator === userId);
 
-  res.json({ places });
+  if (!place) {
+    return next(new HttpError("No place for the provided user id!", 404));
+  }
+
+  res.json({ place });
 });
-
-//The order of the routes matters!
 
 module.exports = router;
