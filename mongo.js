@@ -1,8 +1,10 @@
 const MongoClient = require("mongodb").MongoClient;
 const productSchema = require("./models/product");
+require("dotenv").config();
 
-const url =
-  "mongodb+srv://habakukc22:MVEMAnrnhTIEVqEB@cluster0.orn0ind.mongodb.net/products_test?retryWrites=true&w=majority";
+const password = process.env.MONGODB_PASSWORD;
+
+const url = `mongodb+srv://habakukc22:${password}@cluster0.orn0ind.mongodb.net/products_test?retryWrites=true&w=majority`;
 
 const createProduct = async (req, res, next) => {
   const newProduct = {
