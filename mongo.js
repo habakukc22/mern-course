@@ -1,6 +1,6 @@
 const MongoClient = require("mongodb").MongoClient;
 const productSchema = require("./models/product");
-require("dotenv").config();
+require("dotenv").config(); //In order to access the .env file
 
 const password = process.env.MONGODB_PASSWORD;
 
