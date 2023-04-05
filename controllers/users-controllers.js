@@ -1,17 +1,7 @@
-const { v4: uuidV4 } = require("uuid");
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
-
-let DUMMY_USERS = [
-  {
-    id: "u1",
-    name: "Habakuk Conrado",
-    email: "habakuk@gmail.com",
-    password: "123456",
-  },
-];
 
 const getUsers = async (req, res, next) => {
   let users;
@@ -35,7 +25,7 @@ const signup = async (req, res, next) => {
     );
     return next(error);
   }
-  const { name, email, password, places } = req.body;
+  const { name, email, password } = req.body;
 
   let existingUser;
   try {
@@ -54,12 +44,12 @@ const signup = async (req, res, next) => {
   }
 
   const createdUser = new User({
-    name: name,
-    email: email,
+    name,
+    email,
+    password,
     image:
       "https://ichef.bbci.co.uk/news/640/amz/worldservice/live/assets/images/2015/09/26/150926165742__85730600_monkey2.jpg",
-    password: password,
-    places: places,
+    places: [],
   });
 
   try {

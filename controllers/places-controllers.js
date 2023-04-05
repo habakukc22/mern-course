@@ -3,6 +3,8 @@ const { validationResult } = require("express-validator");
 const HttpError = require("../models/http-error");
 const { getCoordsForAddress } = require("../utils/location");
 const Place = require("../models/place");
+const User = require("../models/user");
+const mongoose = require("mongoose");
 
 const getPlaceById = async (req, res, next) => {
   const placeId = req.params.pid;
@@ -37,10 +39,13 @@ const getPlaceById = async (req, res, next) => {
 const getPlacesByUserId = async (req, res, next) => {
   const userId = req.params.uid;
 
-  let places;
+  // let places;
+  let userWithPlaces;
 
   try {
-    places = await Place.find({ creator: userId });
+    // places = await Place.find({ creator: userId });
+    userWithPlaces = await User.findById(userId).populate("places");
+
     /*Find is available in mondoDB and mongoose. 
     In mongoDB it return a cursor and in mongoose it returns an array.
     The syntax above is used to filter for the documents which creator is equal to userId.
@@ -51,7 +56,8 @@ const getPlacesByUserId = async (req, res, next) => {
     return next(error);
   }
 
-  if (!places || places.length === 0) {
+  // if (!places || places.length === 0) {
+  if (!userWithPlaces || userWithPlaces.places.length === 0) {
     const error = new HttpError(
       "Could not find a place for the provided user in the DB ",
       404
@@ -61,7 +67,10 @@ const getPlacesByUserId = async (req, res, next) => {
   }
 
   res.json({
-    places: places.map((place) => place.toObject({ getters: true })),
+    // places: places.map((place) => place.toObject({ getters: true })),
+    places: userWithPlaces.places.map((place) =>
+      place.toObject({ getters: true })
+    ),
   });
   /* Here we needed to do the response in a little different way because find returns and array.
   toObject is to turn the "mangooseObject" into onrdinary JS obj,
@@ -99,10 +108,30 @@ const createPlace = async (req, res, next) => {
     creator,
   });
 
+  let user;
   try {
-    await createdPlace.save();
+    user = await User.findById(creator);
   } catch (err) {
-    const error = new HttpError("Error saving data at the DB", 500);
+    const error = new HttpError("Creating place failed, please try again", 500);
+    return next(error);
+  }
+
+  if (!user) {
+    const error = new HttpError("Couldn't find user for the provided id.", 404);
+    return next(error);
+  }
+
+  console.log(user);
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await createdPlace.save({ session: sess });
+    user.places.push(createdPlace);
+    await user.save({ session: sess });
+    await sess.commitTransaction();
+  } catch (err) {
+    const error = new HttpError("Creating place failed, please try again", 500);
     return next(error);
   }
 
@@ -154,19 +183,30 @@ const updatePlace = async (req, res, next) => {
 
 const deletePlace = async (req, res, next) => {
   const placeId = req.params.pid;
+
   let place;
-
   try {
-    place = await Place.findById(placeId);
+    place = await Place.findById(placeId).populate("creator");
   } catch (err) {
-    const error = new HttpError("Could not find the place in the DB", 500);
+    const error = new HttpError("Something went wrong getting the place", 500);
+    return next(error);
+  }
 
+  if (!place) {
+    const error = new HttpError("Couldn't find the place with the id", 404);
     return next(error);
   }
 
   try {
     // await place.remove()// deprecated
     await place.deleteOne(); //https://mongoosejs.com/docs/deprecations.html#remove
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    await place.deleteOne({ session: session });
+    place.creator.places.pull(place); //thanks to populate that can be done
+    await place.creator.save({ session: session });
+    await session.commitTransaction();
   } catch (err) {
     const error = new HttpError("Could not delete the place from the DB", 500);
 
