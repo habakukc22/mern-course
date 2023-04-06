@@ -37,7 +37,7 @@ const signup = async (req, res, next) => {
 
   if (existingUser) {
     const error = new HttpError(
-      "Email already registered! Try to login instead",
+      "Email already registered! Try to login instead.",
       422
     );
     return next(error);
