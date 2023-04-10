@@ -11,7 +11,7 @@ import UserPlaces from "./paces/pages/UserPlaces";
 import MainNavigation from "./shared/components/Navigation/MainNavigation";
 import { AuthContext } from "./shared/context/auth-context";
 import Auth from "./user/pages/Auth";
-import User from "./user/pages/User";
+import User from "./user/pages/Users";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

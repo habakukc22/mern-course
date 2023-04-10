@@ -11,14 +11,15 @@ import {
   VALIDATOR_REQUIRE,
 } from "../../shared/util/validators";
 import { useForm } from "../../shared/hooks/form-hook";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 import { AuthContext } from "../../shared/context/auth-context";
 import "./Auth.css";
 
 function Auth() {
   const [isLoginMode, setIsLoginMode] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
   const { login } = useContext(AuthContext);
+
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   const [formState, inputHandler, setFormData] = useForm(
     {
@@ -62,74 +63,45 @@ function Auth() {
   const authSubmitHandler = async (event) => {
     event.preventDefault();
 
-    setIsLoading(true);
-
     if (isLoginMode) {
       try {
-        const response = await fetch("http://localhost:5000/api/users/login/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+        await sendRequest(
+          "http://localhost:5000/api/users/login/",
+          "POST",
+          JSON.stringify({
             email: formState.inputs.email.value,
             password: formState.inputs.password.value,
           }),
-        });
-
-        const data = await response.json();
-
-        //!response.ok = true if the response has status code 400-500
-        if (!response.ok) {
-          throw new Error(data.message);
-        }
-
-        setIsLoading(false);
-        login();
-      } catch (err) {
-        setIsLoading(false);
-        setError(err.message || "Something went wrong!");
-      }
-    } else {
-      try {
-        const response = await fetch(
-          "http://localhost:5000/api/users/signup/",
           {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              name: formState.inputs.name.value,
-              email: formState.inputs.email.value,
-              password: formState.inputs.password.value,
-            }),
+            "Content-Type": "application/json",
           }
         );
 
-        const data = await response.json();
-
-        //!response.ok = true if the response has status code 400-500
-        if (!response.ok) {
-          throw new Error(data.message);
-        }
-
-        setIsLoading(false);
         login();
-      } catch (err) {
-        setIsLoading(false);
-        setError(err.message || "Something went wrong!");
-      }
-    }
-  };
+      } catch (error) {}
+    } else {
+      try {
+        await sendRequest(
+          "http://localhost:5000/api/users/signup/",
+          "POST",
+          JSON.stringify({
+            name: formState.inputs.name.value,
+            email: formState.inputs.email.value,
+            password: formState.inputs.password.value,
+          }),
+          {
+            "Content-Type": "application/json",
+          }
+        );
 
-  const errorHandler = () => {
-    setError(null);
+        login();
+      } catch (error) {}
+    }
   };
 
   return (
     <Fragment>
-      <ErrorModal error={error} onClear={errorHandler} />
+      <ErrorModal error={error} onClear={clearError} />
       <Card className="authentication">
         {isLoading && <LoadingSpinner asOverlay />}
         <h2>Login required</h2>
