@@ -65,7 +65,7 @@ function Auth() {
 
     if (isLoginMode) {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
           "http://localhost:5000/api/users/login/",
           "POST",
           JSON.stringify({
@@ -77,11 +77,11 @@ function Auth() {
           }
         );
 
-        login();
+        login(responseData.user.id);
       } catch (error) {}
     } else {
       try {
-        await sendRequest(
+        const responseData = await sendRequest(
           "http://localhost:5000/api/users/signup/",
           "POST",
           JSON.stringify({
@@ -94,7 +94,7 @@ function Auth() {
           }
         );
 
-        login();
+        login(responseData.user.id);
       } catch (error) {}
     }
   };

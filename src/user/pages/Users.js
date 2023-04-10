@@ -3,42 +3,28 @@ import React, { Fragment, useEffect, useState } from "react";
 import UsersList from "../components/UsersList";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
+import { useHttpClient } from "../../shared/hooks/http-hook";
 
 function User() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
   const [loadedUsers, setLoadedUsers] = useState();
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
 
   //I think I've saw that already, but I'll repeat: the useEffect function should not be async
   useEffect(() => {
-    const sendRequest = async () => {
-      setIsLoading(true);
+    const sendUsersRequest = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/users/");
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || "Something went wrong");
-        }
+        const data = await sendRequest("http://localhost:5000/api/users/");
 
         setLoadedUsers(data.users);
-      } catch (err) {
-        setError(err.message);
-      }
-
-      setIsLoading(false);
+      } catch (err) {}
     };
 
-    sendRequest();
-  }, []);
-
-  const errorHandler = () => {
-    setError(null);
-  };
+    sendUsersRequest();
+  }, [sendRequest]);
 
   return (
     <Fragment>
-      <ErrorModal error={error} onClear={errorHandler} />
+      <ErrorModal error={error} onClear={clearError} />
       {isLoading && (
         <div className="center">
           <LoadingSpinner />

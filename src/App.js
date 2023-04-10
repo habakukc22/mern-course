@@ -15,17 +15,21 @@ import User from "./user/pages/Users";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userId, setUserId] = useState(false);
 
-  const login = useCallback(() => {
+  const login = useCallback((uid) => {
+    setUserId(uid);
     setIsLoggedIn(true);
   }, []);
 
   const logout = useCallback(() => {
+    setUserId(null);
     setIsLoggedIn(false);
   }, []);
 
   let context = {
     isLoggedIn,
+    userId,
     login,
     logout,
   };
