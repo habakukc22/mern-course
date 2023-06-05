@@ -18,7 +18,6 @@ const getUsers = async (req, res, next) => {
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    console.log(errors);
     const error = new HttpError(
       "Invalid inputs passed, please check your data.",
       422
@@ -47,8 +46,7 @@ const signup = async (req, res, next) => {
     name,
     email,
     password,
-    image:
-      "https://ichef.bbci.co.uk/news/640/amz/worldservice/live/assets/images/2015/09/26/150926165742__85730600_monkey2.jpg",
+    image: req.file.path,
     places: [],
   });
 

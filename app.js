@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -10,6 +12,8 @@ const credentials = require("./credentials");
 const app = express();
 
 app.use(bodyParser.json()); //bodyParser.json will get any incoming json data, parse it and then call the next middleware
+
+app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
 app.use((req, res, next) => {
   //these headers are set to prevent CORS errors
@@ -34,6 +38,11 @@ app.use((req, res, next) => {
 }); //This middleware will be reached only if the previous router middleware did not send a response
 
 app.use((error, req, res, next) => {
+  if (req.file) {
+    fs.unlink(req.file.path, (err) => {
+      console.log(err);
+    });
+  }
   if (res.headerSent) {
     return next(error);
   }
