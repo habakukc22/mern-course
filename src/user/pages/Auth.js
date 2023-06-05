@@ -5,6 +5,7 @@ import Input from "../../shared/components/FormElements/Input";
 import Button from "../../shared/components/FormElements/Button";
 import LoadingSpinner from "../../shared/components/UIElements/LoadingSpinner";
 import ErrorModal from "../../shared/components/UIElements/ErrorModal";
+import ImageUpload from "../../shared/components/FormElements/ImageUpload";
 import {
   VALIDATOR_EMAIL,
   VALIDATOR_MINLENGTH,
@@ -119,6 +120,8 @@ function Auth() {
             />
           )}
 
+          {!isLoginMode ? <ImageUpload center id="image" /> : null}
+
           <Input
             element="input"
             id="email"
@@ -134,8 +137,8 @@ function Auth() {
             id="password"
             type="password"
             label="Password"
-            validators={[VALIDATOR_MINLENGTH(5)]}
-            errorText="Please, enter a valid password, at least 5 characters."
+            validators={[VALIDATOR_MINLENGTH(6)]}
+            errorText="Please, enter a valid password, at least 6 characters."
             onInput={inputHandler}
           />
 
