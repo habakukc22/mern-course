@@ -1,3 +1,4 @@
+const fs = require("fs");
 const { validationResult } = require("express-validator");
 
 const HttpError = require("../models/http-error");
@@ -120,8 +121,6 @@ const createPlace = async (req, res, next) => {
     return next(error);
   }
 
-  console.log(user);
-
   try {
     const sess = await mongoose.startSession();
     sess.startTransaction();
@@ -196,6 +195,8 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = place.image;
+
   try {
     // await place.remove()// deprecated
     await place.deleteOne(); //https://mongoosejs.com/docs/deprecations.html#remove
@@ -211,6 +212,10 @@ const deletePlace = async (req, res, next) => {
 
     return next(error);
   }
+
+  fs.unlink(imagePath, (err) => {
+    console.log(err);
+  });
 
   res.status(200).json({ message: "Deleted place!" });
 };

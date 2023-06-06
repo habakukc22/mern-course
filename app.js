@@ -56,8 +56,6 @@ const dbName = "mern";
 
 const { username, password } = credentials;
 
-// console.log(username, password);
-
 let url = `mongodb+srv://${username}:${password}@cluster0.orn0ind.mongodb.net/${dbName}?retryWrites=true&w=majority`;
 
 mongoose
